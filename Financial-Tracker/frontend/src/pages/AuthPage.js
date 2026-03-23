@@ -21,6 +21,12 @@ export default function AuthPage({ onLogin }) {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <div className="auth-brand">
+          <div className="auth-brand-logo">💹</div>
+          <h1>FinTrack</h1>
+          <p>Your personal finance companion</p>
+        </div>
+
         <AuthTabs mode={mode} onChange={switchMode} />
 
         <AuthForm
