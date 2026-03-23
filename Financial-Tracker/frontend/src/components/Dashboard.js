@@ -146,15 +146,15 @@ const Dashboard = ({ token, onLogout }) => {
       <section className="summary-cards">
         <div className="card income">
           <h3>Total Income</h3>
-          <p>${totalIncome.toFixed(2)}</p>
+          <p>Rs {totalIncome.toFixed(2)}</p>
         </div>
         <div className="card expense">
           <h3>Total Expense</h3>
-          <p>${totalExpense.toFixed(2)}</p>
+          <p>Rs {totalExpense.toFixed(2)}</p>
         </div>
         <div className="card balance">
           <h3>Balance</h3>
-          <p>${balance.toFixed(2)}</p>
+          <p>Rs {balance.toFixed(2)}</p>
         </div>
       </section>
 
@@ -241,7 +241,7 @@ const Dashboard = ({ token, onLogout }) => {
                   <td className={t.type === "income" ? "text-success" : "text-danger"}>
                     {t.type}
                   </td>
-                  <td>${Number(t.amount).toFixed(2)}</td>
+                  <td>Rs {Number(t.amount).toFixed(2)}</td>
                   <td>
                     <button
                       className="delete-btn"
