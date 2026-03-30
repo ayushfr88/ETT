@@ -110,6 +110,78 @@ body {
 }
 
 /* ==========================================
+   FILTER SECTION
+   ========================================== */
+.filter-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 16px 24px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.date-filter-select,
+.month-picker {
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-family: 'Inter', sans-serif;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  outline: none;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.date-filter-select:focus,
+.month-picker:focus {
+  border-color: rgba(99, 102, 241, 0.6);
+  background: rgba(99, 102, 241, 0.07);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.date-filter-select option {
+  background: #1e1b4b;
+  color: #e2e8f0;
+}
+
+.month-picker::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.active-filter-label {
+  margin-left: auto;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.active-filter-label b {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .active-filter-label {
+    margin-left: 0;
+    margin-top: 8px;
+    text-align: center;
+  }
+}
+
+/* ==========================================
    SUMMARY CARDS
    ========================================== */
 .summary-cards {
