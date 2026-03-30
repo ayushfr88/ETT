@@ -35,6 +35,9 @@ const Dashboard = ({ token, onLogout }) => {
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [filterType, setFilterType] = useState("thisMonth");
+  const [selectedMonth, setSelectedMonth] = useState("");
+
   const fetchTransactions = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/api/transactions`, {
@@ -87,17 +90,48 @@ const Dashboard = ({ token, onLogout }) => {
     }
   };
 
+  const getFilteredTransactions = () => {
+    if (!transactions.length) return [];
+    const now = new Date();
+    return transactions.filter((t) => {
+      const tDate = new Date(t.date);
+      if (filterType === "last7days") {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(now.getDate() - 7);
+        sevenDaysAgo.setHours(0, 0, 0, 0);
+        return tDate >= sevenDaysAgo && tDate <= now;
+      }
+      if (filterType === "last30days") {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(now.getDate() - 30);
+        thirtyDaysAgo.setHours(0, 0, 0, 0);
+        return tDate >= thirtyDaysAgo && tDate <= now;
+      }
+      if (filterType === "thisMonth") {
+        return tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear();
+      }
+      if (filterType === "selectMonth") {
+        if (!selectedMonth) return true;
+        const [year, month] = selectedMonth.split("-");
+        return tDate.getFullYear() === parseInt(year) && tDate.getMonth() === (parseInt(month) - 1);
+      }
+      return true; // all
+    });
+  };
+
+  const filteredTransactions = getFilteredTransactions();
+
   // Compute Summaries
-  const totalIncome = transactions.filter((t) => t.type === "income")
+  const totalIncome = filteredTransactions.filter((t) => t.type === "income")
     .reduce((acc, curr) => acc + Number(curr.amount), 0);
-  const totalExpense = transactions.filter((t) => t.type === "expense")
+  const totalExpense = filteredTransactions.filter((t) => t.type === "expense")
     .reduce((acc, curr) => acc + Number(curr.amount), 0);
   const balance = totalIncome - totalExpense;
 
   const fmt = (n) => "Rs " + n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   // Pie Chart Data
-  const expenseCategories = transactions
+  const expenseCategories = filteredTransactions
     .filter((t) => t.type === "expense")
     .reduce((acc, curr) => {
       acc[curr.category] = (acc[curr.category] || 0) + Number(curr.amount);
@@ -174,19 +208,53 @@ const Dashboard = ({ token, onLogout }) => {
       </nav>
 
       <div className="dashboard-container">
+        {/* FILTER SECTION */}
+        <section className="filter-section">
+          <div className="filter-controls">
+            <select 
+              value={filterType} 
+              onChange={(e) => setFilterType(e.target.value)} 
+              className="date-filter-select"
+            >
+              <option value="all">All Time</option>
+              <option value="last7days">Last 7 Days</option>
+              <option value="last30days">Last 30 Days</option>
+              <option value="thisMonth">This Month</option>
+              <option value="selectMonth">Select Month</option>
+            </select>
+            {filterType === "selectMonth" && (
+              <input 
+                type="month" 
+                value={selectedMonth} 
+                onChange={(e) => setSelectedMonth(e.target.value)} 
+                className="month-picker"
+              />
+            )}
+            <div className="active-filter-label">
+              Showing data for: &nbsp;<b>{
+                filterType === "all" ? "All Time" :
+                filterType === "last7days" ? "Last 7 Days" :
+                filterType === "last30days" ? "Last 30 Days" :
+                filterType === "thisMonth" ? "This Month" :
+                filterType === "selectMonth" ? (selectedMonth ? new Date(selectedMonth).toLocaleDateString('en-IN', {month: 'long', year: 'numeric'}) : "Select a month") : ""
+              }</b>
+            </div>
+          </div>
+        </section>
+
         {/* SUMMARY CARDS */}
         <section className="summary-cards">
           <div className="card income">
             <span className="card-icon">💚</span>
             <div className="card-label">Total Income</div>
             <div className="card-amount">{fmt(totalIncome)}</div>
-            <div className="card-footer">{transactions.filter(t => t.type === "income").length} transactions</div>
+            <div className="card-footer">{filteredTransactions.filter(t => t.type === "income").length} transactions</div>
           </div>
           <div className="card expense">
             <span className="card-icon">🔴</span>
             <div className="card-label">Total Expense</div>
             <div className="card-amount">{fmt(totalExpense)}</div>
-            <div className="card-footer">{transactions.filter(t => t.type === "expense").length} transactions</div>
+            <div className="card-footer">{filteredTransactions.filter(t => t.type === "expense").length} transactions</div>
           </div>
           <div className="card balance">
             <span className="card-icon">⚖️</span>
@@ -259,14 +327,14 @@ const Dashboard = ({ token, onLogout }) => {
           <div className="table-header">
             <div>
               <div className="section-title">Recent Transactions</div>
-              <div className="section-subtitle">All your recorded transactions</div>
+              <div className="section-subtitle">Filtered transactions</div>
             </div>
-            <span className="table-count">{transactions.length} entries</span>
+            <span className="table-count">{filteredTransactions.length} entries</span>
           </div>
-          {transactions.length === 0 ? (
+          {filteredTransactions.length === 0 ? (
             <div className="empty-state">
               <span>📋</span>
-              No transactions yet. Add your first one!
+              No transactions match the selected filter.
             </div>
           ) : (
             <table className="transactions-table">
@@ -280,7 +348,7 @@ const Dashboard = ({ token, onLogout }) => {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((t) => (
+                {filteredTransactions.map((t) => (
                   <tr key={t.id}>
                     <td>{new Date(t.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</td>
                     <td>
