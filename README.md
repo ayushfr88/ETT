@@ -20,6 +20,7 @@ This project currently focuses on **authentication and core infrastructure**, ma
 ### 🎨 Frontend
 - React (Create React App)
 - Login / Signup UI
+- Safegaurd Authentication
 - API integration with backend
 
 ### 🐳 Docker Support
